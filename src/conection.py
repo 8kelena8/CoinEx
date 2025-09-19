@@ -1,9 +1,6 @@
 import ccxt
 import pandas as pd
-import numpy as np
-from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+import os
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -15,19 +12,22 @@ coinex = ccxt.coinex({
 })
 
 # Verificar conexión
-print(coinex.fetch_balance())
+# print(coinex.fetch_balance())
 
-def obtener_datos_historicos(symbol='GRT/USDT', timeframe='1h', limit=1000):
+def obtener_datos_historicos(symbol='GRT/USDT', timeframe='1min', limit=1000):
     """
     Obtiene datos históricos de Coinex
     """
-    ohlcv = coinex.fetch_ohlcv(symbol, timeframe, limit=limit)
+    ohlcv = coinex.fetch_ohlcv(symbol, timeframe, limit=limit, since=1758183360000)
+    # print(ohlcv)
     df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
-    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+    df['timestamp_date'] = pd.to_datetime(df['timestamp'], unit='ms')
     df.set_index('timestamp', inplace=True)
+    ruta_completa = os.path.join('/home/kelena/workspace/CoinEx/src/data/prueba.csv')
+    df.to_csv(ruta_completa, encoding='utf-8')
     return df
 
 # Obtener datos
-df = obtener_datos_historicos('GRT/USDT', '1h', 2000)
+df = obtener_datos_historicos('GRT/USDT', '1min', 1000)
 print(df.head())
 
